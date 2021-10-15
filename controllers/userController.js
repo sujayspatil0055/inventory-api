@@ -12,7 +12,6 @@ async function saveUser(userData) {
     
 
     var userData = {
-        id:          userData.id,
         full_name:   userData.full_name, 
         email:       userData.email, 
         password:    hashPassword,
@@ -21,11 +20,17 @@ async function saveUser(userData) {
     };
     
     let userModelObject = new userModel(userData); 
-    let result = await userModelObject.save()
-    // function(error){
-    //     // console.log(userModelObject);
-        
-    // });
+    let result = await userModelObject.save(function (error) {
+        if (error) {
+            response.status = 'fail',
+            response.message = 'Unable save data, please try later.',
+            response.data = {}
+        }
+        response.status = 'success',
+        response.message = 'Data saved successfully.',
+        response.data = {}
+    });
+    
     console.log(result);
 
     // if(error){ 
