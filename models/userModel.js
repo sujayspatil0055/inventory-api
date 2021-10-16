@@ -2,7 +2,7 @@
 const mongooseConfig = require('../config/database.config');
 const { Schema } = mongooseConfig;
 
-console.log(mongooseConfig.connection.readyState);
+// console.log(mongooseConfig.connection.readyState);
 
 const userSchema = new Schema({
     full_name:  {
@@ -18,13 +18,12 @@ const userSchema = new Schema({
         type: String,
         // required: [true,  'Password is required']
     },
-    timestamps: Date
-});
+}, { timestamps: true });
 
-userSchema.method("toJSON", function() {
-    const { __v, _id, ...object } = this.toObject();
-    object.id = _id;
-    return object;
-});
-
-module.exports = mongooseConfig.model('userModel', userSchema);
+// userSchema.method("toJSON", function() {
+//     const { __v, _id, ...object } = this.toObject();
+//     object.id = _id;
+//     return object;
+// });
+const UserModal = mongooseConfig.model('userModel', userSchema);
+module.exports = UserModal;

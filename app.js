@@ -1,3 +1,4 @@
+const result = require('dotenv').config();
 const express = require('express');
 const app = express();
 // const bodyParser = require('body-parser');
@@ -5,8 +6,9 @@ const app = express();
 /* Routes */
 const userRoutes = require('./routes/userRoutes');
 
+// convert every request to json string/object
+app.use(express.json());
 
-app.use(express.json());// convert every request to json string/object
 app.use(
     express.urlencoded({
         extended: true
@@ -21,7 +23,7 @@ app.use(
 // );
 
 app.use(userRoutes);
-
+// console.log(process.env.PORT);
 const port = process.env.PORT || 3000;
 app.listen(port, () => console.log(`listening on port ${port}...`));
 

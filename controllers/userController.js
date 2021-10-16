@@ -1,79 +1,126 @@
-const userModel = require('../models/userModel');
+const UserModal = require('../models/userModel');
 const crypto = require('crypto');
 
 saveUser = async (req, res) => {
     // console.log(userData);
-    // debugger;
-    // let response = {};
-    const secret = 'abcdefg';
-    const hashPassword = crypto.createHmac('sha1', secret)
-                   .update(req.body.password)
-                   .digest('hex');
-    
+    const hashPassword = getHash(req.body.password);
 
     var userData = {
-        full_name:   req.body.full_name, 
-        email:       req.body.email, 
+        full_name:   req.body.full_name.trim(), 
+        email:       req.body.email.trim(), 
         password:    hashPassword,
     };
     
-    let userModelObject = new userModel(userData); 
-    // console.log(userModelObject);
-    await userModelObject.save(function (error) {
-        console.log('error');
-        console.log(error);
-        if (error) {
+    // check email already exits or not
+    let isUserFound = await UserModal.findOne({ email: userData.email }).exec()
+    // console.log(isUserFound);
+    if(isUserFound != null || isUserFound != "") {
+        res.send({
+            status: 'fail',
+            message: 'Email already exits.',
+            data: {}
+        });
+    }
+    let userModelObject = new UserModal(userData); 
+
+    userModelObject.save()
+        .then( (result) => {
+            res.send({
+                status: 'success',
+                message: 'Data saved successfully.',
+                data: result
+            });
+        })
+        .catch( (error) => {
+            console.log(error);
             res.send({
                 status: 'fail',
                 message: 'Unable save data, please try later.',
                 data: {}
             });
-        }
-        res.send({
-            status: 'success',
-            message: 'Data saved successfully.',
-            data: {}
         });
-    });
-    
-    // console.log(result);
-
-    // if(error){ 
-    //     response.status = 'fail',
-    //     response.message = 'error'
-    //     // throw error;
-    //     return response;
-    // }
-    // response.status = 'success',
-    // response.message = 'Data saved successfully.'
-    // return response;
-    // // res.json({message : "", status : ""});
-    // return result;
 };
 
 loginUser = async (req, res) => {
 
     // find user
-    let userModelObject = new userModel();
-    let userDetails = await userModelObject.findOne({ email: req.body.email });
+    // let userModelObject = new UserModal();
+    let userDetails = await UserModal.findOne({ email: req.body.email }).exec();
     if ( userDetails == null || userDetails == "" ) {
-        res.send({status: 'fail', message: 'User not found', data: []});
+        res.send({status: 'fail', message: 'User not found, please register', data: {}});
     }
 
-    if ( userDetails.password != req.body.password ) {
-        res.status(200).send({status: 'fail', message: 'Email or password is invalid', data: []});
+    if ( userDetails.password != getHash(req.body.password) ) {
+        res.send({status: 'fail', message: 'Email or password is invalid', data: {}});
     }
 
     let userData = {
-        full_name: userData.full_name,
-        email: userData.email
+        _id: userDetails._id,
+        full_name: userDetails.full_name,
+        email: userDetails.email
     };
 
-    res.status(200).send({ status: 'success', message: "User found", data: userData});
+    res.send({ status: 'success', message: "User found", data: userData});
 
 };
 
+updateUser = async (req, res) => {
+    const userData = req.body;
+    
+}
+
+getUserById = async (req, res) => {
+    const id = req.params.id.trim();
+    if(id == "") {
+        res.send({status: 'fail', message: 'Please provide user id.', data: {}});
+    }
+
+    let userDetails = await UserModal.findOne({ _id: id }).exec();
+    if ( userDetails == null || userDetails == "" ) {
+        res.send({status: 'fail', message: 'User not found', data: {}});
+    }
+    let userData = {
+        _id: userDetails._id,
+        full_name: userDetails.full_name,
+        email: userDetails.email
+    };
+    res.send({ status: 'success', message: "User found", data: userData});   
+};
+
+getUserByEmail = async (req, res) => {
+    const email = req.params.email.trim();
+    if (email == "") {
+        res.send({status: 'fail', message: 'Please provide email address', data: {}});
+    }
+
+    let userDetails = await UserModal.findOne({ email: email }).exec();
+    if ( userDetails == null || userDetails == "" ) {
+        res.send({status: 'fail', message: 'User not found', data: {}});
+    }
+    let userData = {
+        _id: userDetails._id,
+        full_name: userDetails.full_name,
+        email: userDetails.email
+    };
+    res.send({ status: 'success', message: "User found", data: userData});   
+};
+
+function getHash(password) {
+    const secret = process.env.SECRET;
+    // let hashPromise = new Promise( (resolve, reject) => {
+    //     crypto.createHmac('sha1', secret)
+    //         .update(req.body.password)
+    //         .digest('hex');
+    // });
+    return crypto.createHmac('sha1', secret)
+                   .update(password)
+                   .digest('hex');
+}
+
 module.exports = {
     saveUser,
-    loginUser
+    loginUser,
+    updateUser,
+    getUserById,
+    getUserByEmail
 };
