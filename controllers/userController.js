@@ -47,7 +47,7 @@ loginUser = async (req, res) => {
     // let userModelObject = new UserModal();
     let userDetails = await UserModal.findOne({ email: req.body.email }).exec();
     if ( userDetails == null || userDetails == "" ) {
-        res.send({status: 'fail', message: 'User not found, please register', data: {}});
+        res.send({status: 'fail', message: 'Account not found, please Sign up', data: {}});
     }
 
     if ( userDetails.password != getHash(req.body.password) ) {
@@ -64,8 +64,22 @@ loginUser = async (req, res) => {
 
 };
 
+// update user data based on email
 updateUser = async (req, res) => {
-    const userData = req.body;
+    const userData = {
+        full_name: req.body.full_name.trim(),
+        _id: req.body.id.trim()
+    };
+
+    let options = {
+        new: true,
+        timestamps: true
+    }
+    const ud = await UserModel.findOneAndUpdate({ _id: userData._id }, { full_name: userData.full_name }, options);
+    
+    //check user found or not 
+    // then send response accordingly
+    console.log(ud);
     
 }
 
@@ -105,6 +119,41 @@ getUserByEmail = async (req, res) => {
     res.send({ status: 'success', message: "User found", data: userData});   
 };
 
+/** Method: post
+ */
+forgetPassword = async (requ, res) => {
+    const userEmail = req.body.email.trim();
+    // const userPassword = req.body.password.trim();
+
+    if (userEmail == "" || userPassword == null) {
+        res.send({
+            status: 'fail',
+            message: 'Email address is required.',
+            data: {}
+        });
+    }
+
+    // const userData = UserModel.findOne({ email: userEmail })
+    // if (userData == null || userData == "") {
+    //     res.send({
+    //         status: 'fail',
+    //         message: 'Account not found, please Sign up.',
+    //         data: {}
+    //     });
+    // }
+
+    const pw = getHash(req.body.password.trim());
+
+    let options = {
+        new: true,
+        timestamps: true
+    }
+
+    const ud = await UserModel.findOneAndUpdate({ email: userEmail }, { password: pw }, options);
+    
+    console.log(ud);
+};
+
 function getHash(password) {
     const secret = process.env.SECRET;
     // let hashPromise = new Promise( (resolve, reject) => {
@@ -121,6 +170,7 @@ module.exports = {
     saveUser,
     loginUser,
     updateUser,
+    forgetPassword,
     getUserById,
     getUserByEmail
 };
