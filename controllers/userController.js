@@ -68,18 +68,41 @@ loginUser = async (req, res) => {
 updateUser = async (req, res) => {
     const userData = {
         full_name: req.body.full_name.trim(),
-        _id: req.body.id.trim()
+        _id: req.body._id.trim()
     };
 
     let options = {
         new: true,
         timestamps: true
     }
-    const ud = await UserModel.findOneAndUpdate({ _id: userData._id }, { full_name: userData.full_name }, options);
+    const ud = await UserModal.findOneAndUpdate({ _id: userData._id }, { full_name: userData.full_name }, options);
+        // .then( (result) => {
+        //     console.log(result);
+        // })
+        // .catch( (error) => {
+        //     console.log(error);
+        // });
     
     //check user found or not 
     // then send response accordingly
-    console.log(ud);
+    if(ud == null || ud == "") {
+        res.send({
+            status: 'fail',
+            message: "Account not found, please try again.",
+            data: {}
+        });
+    }
+
+    res.send({
+        status: 'success',
+        message: "successfully updated",
+        data: {
+            _id: ud._id,
+            full_name: ud.full_name,
+            email: ud.email,
+        }
+    });
+
     
 }
 
@@ -121,14 +144,22 @@ getUserByEmail = async (req, res) => {
 
 /** Method: post
  */
-forgetPassword = async (requ, res) => {
+forgetPassword = async (req, res) => {
     const userEmail = req.body.email.trim();
     // const userPassword = req.body.password.trim();
 
-    if (userEmail == "" || userPassword == null) {
+    if (userEmail == "" || userEmail == null) {
         res.send({
             status: 'fail',
             message: 'Email address is required.',
+            data: {}
+        });
+    }
+
+    if(req.body.password.trim() == "") {
+        res.send({
+            status: 'fail',
+            message: 'Password cannot be empty.',
             data: {}
         });
     }
@@ -149,9 +180,26 @@ forgetPassword = async (requ, res) => {
         timestamps: true
     }
 
-    const ud = await UserModel.findOneAndUpdate({ email: userEmail }, { password: pw }, options);
+    const ud = await UserModal.findOneAndUpdate({ email: userEmail }, { password: pw }, options);
     
-    console.log(ud);
+    // console.log(ud);
+    if(ud == null || ud == "") {
+        res.send({
+            status: 'fail',
+            message: "Account not found, please try again.",
+            data: {}
+        });
+    }
+
+    res.send({
+        status: 'success',
+        message: "Successfully password updated.",
+        data: {
+            _id: ud._id,
+            // full_name: ud.full_name,
+            // email: ud.email,
+        }
+    });
 };
 
 function getHash(password) {
