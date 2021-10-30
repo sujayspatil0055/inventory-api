@@ -42,15 +42,18 @@ saveUser = async (req, res) => {
 };
 
 loginUser = async (req, res) => {
-
+    console.log('login user');
     // find user
     // let userModelObject = new UserModal();
-    let userDetails = await UserModal.findOne({ email: req.body.email }).exec();
+    console.log(req.body);
+    let userBody = req.body.data;
+    
+    let userDetails = await UserModal.findOne({ email: userBody.email }).exec();
     if ( userDetails == null || userDetails == "" ) {
         res.send({status: 'fail', message: 'Account not found, please Sign up', data: {}});
     }
 
-    if ( userDetails.password != getHash(req.body.password) ) {
+    if ( userDetails.password !== getHash(userBody.password) ) {
         res.send({status: 'fail', message: 'Email or password is invalid', data: {}});
     }
 
@@ -137,7 +140,8 @@ getUserByEmail = async (req, res) => {
     let userData = {
         _id: userDetails._id,
         full_name: userDetails.full_name,
-        email: userDetails.email
+        email: userDetails.email,
+        password: userDetails.password
     };
     res.send({ status: 'success', message: "User found", data: userData});   
 };
