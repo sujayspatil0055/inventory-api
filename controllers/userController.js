@@ -15,7 +15,7 @@ saveUser = async (req, res) => {
     let isUserFound = await UserModal.findOne({ email: userData.email }).exec()
     // console.log(isUserFound);
     if(isUserFound != null || isUserFound != "") {
-        res.send({
+        res.status(200).json({
             status: 'fail',
             message: 'Email already exits.',
             data: {}
@@ -25,7 +25,7 @@ saveUser = async (req, res) => {
 
     userModelObject.save()
         .then( (result) => {
-            res.send({
+            return res.status(200).json({
                 status: 'success',
                 message: 'Data saved successfully.',
                 data: result
@@ -33,7 +33,7 @@ saveUser = async (req, res) => {
         })
         .catch( (error) => {
             console.log(error);
-            res.send({
+            return res.status(200).json({
                 status: 'fail',
                 message: 'Unable save data, please try later.',
                 data: {}
@@ -42,19 +42,17 @@ saveUser = async (req, res) => {
 };
 
 loginUser = async (req, res) => {
-    console.log('login user');
     // find user
-    // let userModelObject = new UserModal();
-    console.log(req.body);
-    let userBody = req.body.data;
+    // console.log();
+    let userBody = (req.body.data != undefined) ? req.body.data : req.body;
     
     let userDetails = await UserModal.findOne({ email: userBody.email }).exec();
     if ( userDetails == null || userDetails == "" ) {
-        res.send({status: 'fail', message: 'Account not found, please Sign up', data: {}});
+        res.status(200).json({status: 'fail', message: 'Account not found, please Sign up', data: {}});
     }
 
     if ( userDetails.password !== getHash(userBody.password) ) {
-        res.send({status: 'fail', message: 'Email or password is invalid', data: {}});
+        res.status(200).json({status: 'fail', message: 'Email or password is invalid', data: {}});
     }
 
     let userData = {
@@ -63,7 +61,7 @@ loginUser = async (req, res) => {
         email: userDetails.email
     };
 
-    res.send({ status: 'success', message: "User found", data: userData});
+    res.status(200).json({ status: 'success', message: "User found", data: userData});
 
 };
 
@@ -89,14 +87,14 @@ updateUser = async (req, res) => {
     //check user found or not 
     // then send response accordingly
     if(ud == null || ud == "") {
-        res.send({
+        res.status(200).json({
             status: 'fail',
             message: "Account not found, please try again.",
             data: {}
         });
     }
 
-    res.send({
+    res.status(200).json({
         status: 'success',
         message: "successfully updated",
         data: {
@@ -112,30 +110,30 @@ updateUser = async (req, res) => {
 getUserById = async (req, res) => {
     const id = req.params.id.trim();
     if(id == "") {
-        res.send({status: 'fail', message: 'Please provide user id.', data: {}});
+        res.status(200).json({status: 'fail', message: 'Please provide user id.', data: {}});
     }
 
     let userDetails = await UserModal.findOne({ _id: id }).exec();
     if ( userDetails == null || userDetails == "" ) {
-        res.send({status: 'fail', message: 'User not found', data: {}});
+        res.status(200).json({status: 'fail', message: 'User not found', data: {}});
     }
     let userData = {
         _id: userDetails._id,
         full_name: userDetails.full_name,
         email: userDetails.email
     };
-    res.send({ status: 'success', message: "User found", data: userData});   
+    res.status(200).json({ status: 'success', message: "User found", data: userData});   
 };
 
 getUserByEmail = async (req, res) => {
     const email = req.params.email.trim();
     if (email == "") {
-        res.send({status: 'fail', message: 'Please provide email address', data: {}});
+        res.status(200).json({status: 'fail', message: 'Please provide email address', data: {}});
     }
 
     let userDetails = await UserModal.findOne({ email: email }).exec();
     if ( userDetails == null || userDetails == "" ) {
-        res.send({status: 'fail', message: 'User not found', data: {}});
+        res.status(200).json({status: 'fail', message: 'User not found', data: {}});
     }
     let userData = {
         _id: userDetails._id,
@@ -143,7 +141,7 @@ getUserByEmail = async (req, res) => {
         email: userDetails.email,
         password: userDetails.password
     };
-    res.send({ status: 'success', message: "User found", data: userData});   
+    res.status(200).json({ status: 'success', message: "User found", data: userData});   
 };
 
 /** Method: post
@@ -153,7 +151,7 @@ forgetPassword = async (req, res) => {
     // const userPassword = req.body.password.trim();
 
     if (userEmail == "" || userEmail == null) {
-        res.send({
+        res.status(200).json({
             status: 'fail',
             message: 'Email address is required.',
             data: {}
@@ -161,7 +159,7 @@ forgetPassword = async (req, res) => {
     }
 
     if(req.body.password.trim() == "") {
-        res.send({
+        res.status(200).json({
             status: 'fail',
             message: 'Password cannot be empty.',
             data: {}
@@ -170,7 +168,7 @@ forgetPassword = async (req, res) => {
 
     // const userData = UserModel.findOne({ email: userEmail })
     // if (userData == null || userData == "") {
-    //     res.send({
+    //     res.status(200).json({
     //         status: 'fail',
     //         message: 'Account not found, please Sign up.',
     //         data: {}
@@ -188,14 +186,14 @@ forgetPassword = async (req, res) => {
     
     // console.log(ud);
     if(ud == null || ud == "") {
-        res.send({
+        res.status(200).json({
             status: 'fail',
             message: "Account not found, please try again.",
             data: {}
         });
     }
 
-    res.send({
+    res.status(200).json({
         status: 'success',
         message: "Successfully password updated.",
         data: {
