@@ -3,7 +3,7 @@ const crypto = require('crypto');
 
 saveUser = async (req, res) => {
     // console.log(userData);
-    const hashPassword = getHash(req.body.password);
+    const hashPassword = getHash(req.body.password.trim());
 
     var userData = {
         full_name:   req.body.full_name.trim(), 
@@ -12,9 +12,13 @@ saveUser = async (req, res) => {
     };
     
     // check email already exits or not
-    let isUserFound = await UserModal.findOne({ email: userData.email }).exec()
+    let userCount = await UserModal.where({ 'email': userData.email }).countDocuments()
+    console.log(userCount);
+    console.log('userCount');
+    // let isUserFound = await UserModal.findOne({  }).exec()
     // console.log(isUserFound);
-    if(isUserFound != null || isUserFound != "") {
+
+    if(userCount > 0) {
         res.status(200).json({
             status: 'fail',
             message: 'Email already exits.',
@@ -50,7 +54,6 @@ loginUser = async (req, res) => {
     if ( userDetails == null || userDetails == "" ) {
         res.status(200).json({status: 'fail', message: 'Account not found, please Sign up', data: {}});
     }
-
     if ( userDetails.password !== getHash(userBody.password) ) {
         res.status(200).json({status: 'fail', message: 'Email or password is invalid', data: {}});
     }
