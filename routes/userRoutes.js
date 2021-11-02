@@ -18,6 +18,8 @@ router.get('/user/get_user_by_email/:email', userController.getUserByEmail);
 router.get('/user/get_user_by_id/:id', userController.getUserById);
 
 router.post('/user/forget_password', userController.forgetPassword);
+
+router.get('/user/all', userController.getAllUsers);
 // router.post('/user/register', (req, res) => {
 //     // console.log(req);
 //     let results = userController.saveUser(req.body)

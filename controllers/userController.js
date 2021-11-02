@@ -219,11 +219,24 @@ function getHash(password) {
                    .digest('hex');
 }
 
+getAllUsers = async (req, res) => {
+    
+    let users = await UserModal.find({});
+
+    console.log(users);
+    res.status(200).json({
+        status: 'success',
+        message: "Users found",
+        data: users
+    });
+}
+
 module.exports = {
     saveUser,
     loginUser,
     updateUser,
     forgetPassword,
     getUserById,
-    getUserByEmail
+    getUserByEmail,
+    getAllUsers
 };
