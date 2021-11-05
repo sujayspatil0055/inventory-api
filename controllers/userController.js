@@ -47,7 +47,6 @@ saveUser = async (req, res) => {
 
 loginUser = async (req, res) => {
     // find user
-    // console.log();
     let userBody = (req.body.data != undefined) ? req.body.data : req.body;
     
     let userDetails = await UserModal.findOne({ email: userBody.email }).exec();
@@ -70,6 +69,7 @@ loginUser = async (req, res) => {
 
 // update user data based on email
 updateUser = async (req, res) => {
+
     const userData = {
         full_name: req.body.full_name.trim(),
         _id: req.body._id.trim()
@@ -80,13 +80,6 @@ updateUser = async (req, res) => {
         timestamps: true
     }
     const ud = await UserModal.findOneAndUpdate({ _id: userData._id }, { full_name: userData.full_name }, options);
-        // .then( (result) => {
-        //     console.log(result);
-        // })
-        // .catch( (error) => {
-        //     console.log(error);
-        // });
-    
     //check user found or not 
     // then send response accordingly
     if(ud == null || ud == "") {
@@ -96,7 +89,6 @@ updateUser = async (req, res) => {
             data: {}
         });
     }
-
     res.status(200).json({
         status: 'success',
         message: "successfully updated",
@@ -107,7 +99,6 @@ updateUser = async (req, res) => {
         }
     });
 
-    
 }
 
 getUserById = async (req, res) => {
@@ -221,9 +212,8 @@ function getHash(password) {
 
 getAllUsers = async (req, res) => {
     
-    let users = await UserModal.find({});
-
-    console.log(users);
+    let users = await UserModal.find({}, '_id full_name email');
+    // console.log(users);
     res.status(200).json({
         status: 'success',
         message: "Users found",
